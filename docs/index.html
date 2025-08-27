@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Visualization System (Web)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- PapaParse CDN for CSV parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Data Visualization System</h1>
+      <p class="tag">Static web app for GitHub Pages</p>
+    </header>
+
+    <main>
+      <section class="controls">
+        <div class="group">
+          <label class="btn">
+            <input id="fileInput" type="file" accept=".csv" hidden />
+            Import CSV
+          </label>
+          <button id="loadSample" class="btn secondary">Load Sample</button>
+        </div>
+        <div class="group">
+          <label>Chart Type</label>
+          <select id="chartType">
+            <option>Bar Chart</option>
+            <option>Pie Chart</option>
+            <option>Line Chart</option>
+            <option>Scatter Plot</option>
+          </select>
+          <button id="renderChart" class="btn primary">Generate Chart</button>
+          <button id="exportPng" class="btn">Export PNG</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h3>Data Preview</h3>
+          <div id="preview" class="preview"></div>
+        </div>
+        <div class="card">
+          <h3>Chart</h3>
+          <canvas id="chartCanvas" width="800" height="480" aria-label="Chart" role="img"></canvas>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Insights</h3>
+        <ul id="insights"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <small>
+        Tip: Drag-and-drop a CSV or use the sample. All processing is client-side, so it works on GitHub Pages.
+      </small>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
