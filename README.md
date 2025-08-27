@@ -1,12 +1,23 @@
-<<<<<<< HEAD
-# data-viz-studio
-Data Visualization System built in Java (Swing/JFreeChart) with a dependency-light Simple mode and a client-side web demo (Chart.js + PapaParse). Import CSV, preview, auto-suggest charts, and export PNG. Deployed via GitHub Pages from /docs.
-=======
 # Data Visualization System
+
+A powerful data visualization system available as both a desktop application (Java) and a web application for GitHub Pages.
+
+## 🌐 Web Demo (GitHub Pages)
+
+**Try it live**: [https://tusharkaushalrajput.github.io/data-viz-studio/](https://tusharkaushalrajput.github.io/data-viz-studio/)
+
+The web version is a client-side application that runs entirely in your browser using Chart.js and PapaParse. Features include:
+- 📊 Multiple chart types (Bar, Pie, Line, Scatter)
+- 📁 CSV file import via drag-and-drop or file picker
+- 🔄 Real-time data preview
+- 💾 Export charts as PNG images
+- 🚀 No server required - works offline after loading
+
+## 💻 Desktop Application
 
 A powerful desktop application for creating interactive data visualizations from CSV files and manual data entry.
 
-## Features
+### Features
 
 ✅ **Multiple Chart Types**: Bar Charts, Pie Charts, Line Graphs, Scatter Plots  
 ✅ **CSV Import**: Load data from CSV files with automatic data type detection  
@@ -15,7 +26,7 @@ A powerful desktop application for creating interactive data visualizations from
 ✅ **Export Options**: Save charts for reports and presentations  
 ✅ **Professional GUI**: Intuitive interface with toolbar and menus  
 
-## System Requirements
+### System Requirements
 
 - **Java**: Version 8 or higher
 - **Memory**: 2GB RAM recommended
@@ -24,13 +35,18 @@ A powerful desktop application for creating interactive data visualizations from
 
 ## Quick Start
 
-### Option 1: Using Pre-built Package
+### 🌐 Web Version (Recommended)
+Visit: [https://tusharkaushalrajput.github.io/data-viz-studio/](https://tusharkaushalrajput.github.io/data-viz-studio/)
+
+### 💻 Desktop Version
+
+#### Option 1: Using Pre-built Package
 1. Download and extract the distribution package
 2. Double-click `run.bat` (Windows) or run `java -jar datavizsys.jar`
 3. Import the sample CSV file from the `data` folder
 4. Generate your first chart!
 
-### Option 2: Building from Source
+#### Option 2: Building from Source
 ```bash
 # Clone the repository
 git clone [repository-url]
