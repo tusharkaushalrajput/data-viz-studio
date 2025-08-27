@@ -2,11 +2,20 @@
 let dataSet = { name: 'Untitled', columns: [], rows: [] };
 let chart;
 const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+const PALETTES = {
+  classic: ['#4f46e5','#16a34a','#f59e0b','#dc2626','#0891b2','#7c3aed','#f97316','#059669'],
+  cbf: ['#0072B2','#E69F00','#009E73','#F0E442','#56B4E9','#D55E00','#CC79A7','#999999'],
+  pastel: ['#a78bfa','#86efac','#fde68a','#fca5a5','#93c5fd','#fdba74','#c4b5fd','#99f6e4'],
+  vivid: ['#3b82f6','#22c55e','#f97316','#ef4444','#06b6d4','#8b5cf6','#eab308','#10b981']
+};
 
 function setData(name, columns, rows) {
   dataSet = { name, columns, rows };
   renderPreview();
   suggestChartTypes();
+  populateColumnPickers();
 }
 
 function renderPreview() {
@@ -31,6 +40,22 @@ function parseCSV(text, name='CSV Data') {
     return Number.isFinite(n) ? n : t;
   }));
   setData(name, header, parsed);
+}
+
+function populateColumnPickers() {
+  const xSel = $('#xColumn');
+  const ySel = $('#yColumn');
+  if (!xSel || !ySel) return;
+  xSel.innerHTML = '';
+  ySel.innerHTML = '';
+  dataSet.columns.forEach((c, i) => {
+    xSel.appendChild(new Option(c, String(i)));
+    ySel.appendChild(new Option(c, String(i)));
+  });
+  if (dataSet.columns.length >= 2) {
+    xSel.value = '0';
+    ySel.value = '1';
+  }
 }
 
 function inferNumericColumns() {
@@ -63,7 +88,8 @@ function suggestChartTypes() {
 }
 
 function toChartJsDataset(type) {
-  const [c0, c1] = [0, 1];
+  const c0 = Number($('#xColumn')?.value ?? 0);
+  const c1 = Number($('#yColumn')?.value ?? 1);
   const labels = dataSet.rows.map(r => String(r[c0]));
   const values = dataSet.rows.map(r => Number(r[c1]) || 0);
   if (type === 'Pie Chart') {
@@ -80,17 +106,19 @@ function renderChart() {
     alert('Need at least two columns (Category, Value)');
     return;
   }
-  const cfg = { type: 'bar', data: {}, options: { responsive: true, maintainAspectRatio: false } };
+  const cfg = { type: 'bar', data: {}, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type !== 'Pie Chart' }, title: { display: !!$('#chartTitle').value, text: $('#chartTitle').value } } } };
   const d = toChartJsDataset(type);
+  const palette = PALETTES[$('#palette')?.value || 'classic'];
   if (type === 'Bar Chart') {
-    cfg.type = 'bar'; cfg.data = d; }
+    cfg.type = 'bar'; cfg.data = d; cfg.data.datasets[0].backgroundColor = palette; cfg.data.datasets[0].borderWidth = 0; }
   else if (type === 'Pie Chart') {
-    cfg.type = 'pie'; cfg.data = { labels: d.labels, datasets: [{ data: d.data }] }; }
+    cfg.type = 'pie'; cfg.data = { labels: d.labels, datasets: [{ data: d.data, backgroundColor: palette }] }; }
   else if (type === 'Line Chart') {
-    cfg.type = 'line'; cfg.data = d; }
+    cfg.type = 'line'; cfg.data = d; cfg.data.datasets[0].borderColor = palette[0]; cfg.data.datasets[0].backgroundColor = 'transparent'; cfg.data.datasets[0].tension = 0.25; }
   else if (type === 'Scatter Plot') {
     cfg.type = 'scatter'; cfg.data = { datasets: [{ label: d.datasets?.[0]?.label || 'Series', data: dataSet.rows.map(r => ({ x: Number(r[0]) || 0, y: Number(r[1]) || 0 })) }] };
     cfg.options.scales = { x: { type: 'linear' } };
+    cfg.data.datasets[0].pointBackgroundColor = palette[0];
   }
   chart = new Chart(ctx, cfg);
 }
@@ -120,6 +148,78 @@ $('#loadSample').addEventListener('click', async () => {
 
 $('#renderChart').addEventListener('click', renderChart);
 $('#exportPng').addEventListener('click', exportPng);
+
+// Cleaning options
+function applyCleaning() {
+  if (!dataSet.columns.length) return;
+  const trim = $('#optTrim')?.checked;
+  const dropEmpty = $('#optDropEmpty')?.checked;
+  const infer = $('#optInfer')?.checked;
+  let cols = dataSet.columns.slice();
+  let rows = dataSet.rows.map(r => r.slice());
+  if (trim) {
+    cols = cols.map(c => String(c).trim());
+    rows = rows.map(r => r.map(v => typeof v === 'string' ? v.trim() : v));
+  }
+  if (dropEmpty) {
+    rows = rows.filter(r => r.some(v => v !== '' && v != null));
+  }
+  if (infer) {
+    rows = rows.map(r => r.map(v => {
+      if (typeof v !== 'string') return v;
+      if (v === '') return '';
+      const n = Number(v);
+      return Number.isFinite(n) ? n : v;
+    }));
+  }
+  setData(dataSet.name, cols, rows);
+}
+$('#applyClean')?.addEventListener('click', applyCleaning);
+
+// Basic profiling & insights
+function profileData() {
+  const el = $('#profile');
+  if (!el || !dataSet.columns.length) { if (el) el.innerHTML = ''; return; }
+  const rows = dataSet.rows.length;
+  const cols = dataSet.columns.length;
+  const numeric = inferNumericColumns().length;
+  el.innerHTML = `Rows: <b>${rows}</b> • Columns: <b>${cols}</b> • Numeric columns: <b>${numeric}</b>`;
+}
+
+function richerInsights() {
+  const list = $('#insights');
+  if (!list) return;
+  list.innerHTML = '';
+  if (dataSet.columns.length < 2 || !dataSet.rows.length) return;
+  const c0 = Number($('#xColumn')?.value ?? 0);
+  const c1 = Number($('#yColumn')?.value ?? 1);
+  const pairs = dataSet.rows
+    .map(r => ({ x: r[c0], y: Number(r[c1]) }))
+    .filter(p => p.x != null && p.x !== '' && Number.isFinite(p.y));
+  if (!pairs.length) return;
+  const ys = pairs.map(p => p.y);
+  const sum = ys.reduce((a,b)=>a+b,0);
+  const mean = sum / ys.length;
+  const min = Math.min(...ys), max = Math.max(...ys);
+  const top = pairs.reduce((m,p)=> p.y>m.y? p:m, pairs[0]);
+  const html = [
+    `<li>Mean of <b>${dataSet.columns[c1]||'Y'}</b>: ${mean.toFixed(2)} (min ${min}, max ${max})</li>`,
+    `<li>Top category: <b>${String(top.x)}</b> with value <b>${top.y}</b></li>`
+  ].join('');
+  list.innerHTML = html;
+}
+
+function refreshSidebars() { profileData(); richerInsights(); }
+
+// Refresh sidebars after data changes
+const _setData = setData;
+setData = function(name, columns, rows) {
+  dataSet = { name, columns, rows };
+  renderPreview();
+  suggestChartTypes();
+  populateColumnPickers();
+  refreshSidebars();
+}
 
 // Drag & drop support
 window.addEventListener('dragover', e => { e.preventDefault(); });

@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Data Visualization System (Web)</title>
+  <title>Data Visualization Studio</title>
+  <meta name="description" content="Data Visualization Studio – CSV to charts in your browser. Import, clean, profile, and visualize with Chart.js." />
+  <link rel="icon" href="../dvs.png" />
     <link rel="stylesheet" href="styles.css" />
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -12,8 +14,8 @@
   </head>
   <body>
     <header>
-      <h1>Data Visualization System</h1>
-      <p class="tag">Static web app for GitHub Pages</p>
+  <h1>Data Visualization Studio</h1>
+  <p class="tag">Client-side data profiling and charting</p>
     </header>
 
     <main>
@@ -25,7 +27,13 @@
           </label>
           <button id="loadSample" class="btn secondary">Load Sample</button>
         </div>
-        <div class="group">
+        <div class="group wrap">
+          <label>Title</label>
+          <input id="chartTitle" class="input" placeholder="e.g., Sales by Product" />
+          <label>X</label>
+          <select id="xColumn"></select>
+          <label>Y</label>
+          <select id="yColumn"></select>
           <label>Chart Type</label>
           <select id="chartType">
             <option>Bar Chart</option>
@@ -33,9 +41,28 @@
             <option>Line Chart</option>
             <option>Scatter Plot</option>
           </select>
+          <label>Palette</label>
+          <select id="palette">
+            <option value="classic">Classic</option>
+            <option value="cbf">Color-Blind Friendly</option>
+            <option value="pastel">Pastel</option>
+            <option value="vivid">Vivid</option>
+          </select>
           <button id="renderChart" class="btn primary">Generate Chart</button>
           <button id="exportPng" class="btn">Export PNG</button>
         </div>
+      </section>
+
+      <section class="controls slim">
+        <details>
+          <summary>Data cleaning & typing</summary>
+          <div class="group wrap">
+            <label><input type="checkbox" id="optTrim" checked /> Trim headers/cells</label>
+            <label><input type="checkbox" id="optDropEmpty" checked /> Drop empty rows</label>
+            <label><input type="checkbox" id="optInfer" checked /> Infer numeric types</label>
+            <button id="applyClean" class="btn">Apply</button>
+          </div>
+        </details>
       </section>
 
       <section class="grid">
@@ -51,14 +78,13 @@
 
       <section class="card">
         <h3>Insights</h3>
+        <div id="profile" class="profile"></div>
         <ul id="insights"></ul>
       </section>
     </main>
 
     <footer>
-      <small>
-        Tip: Drag-and-drop a CSV or use the sample. All processing is client-side, so it works on GitHub Pages.
-      </small>
+  <small>Built by <a href="https://github.com/tusharkaushalrajput" target="_blank" rel="noreferrer">Tushar Kaushal</a>. Drag-and-drop a CSV or use the sample. Everything runs in your browser.</small>
     </footer>
 
     <script src="app.js"></script>
